@@ -10,7 +10,7 @@
 
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/fragmentContainerView"
-        android:name="com.himank.booksassignment.HomeFragment"
+        android:name="com.himank.booksassignment.fragment.HomeFragment"
         android:layout_width="0dp"
         android:layout_height="0dp"
         tools:ignore="MissingConstraints" />

@@ -1,4 +1,4 @@
-package com.himank.booksassignment
+package com.himank.booksassignment.fragment
 
 import android.content.Context
 import android.os.Bundle
@@ -12,8 +12,15 @@ import androidx.core.widget.addTextChangedListener
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.material.search.SearchView
+import com.himank.booksassignment.R
+import com.himank.booksassignment.adapters.BooksHorizontalAdapter
+import com.himank.booksassignment.adapters.BooksVerticalAdapter
+import com.himank.booksassignment.dataStore.BookMarkedRepository
 import com.himank.booksassignment.databinding.FragmentHomeBinding
-import kotlinx.coroutines.flow.collectLatest
+import com.himank.booksassignment.retrofit.ApiInterface
+import com.himank.booksassignment.retrofit.Book
+import com.himank.booksassignment.retrofit.RetrofitInstance
 import kotlinx.coroutines.launch
 
 class HomeFragment : Fragment() {
@@ -50,7 +57,7 @@ class HomeFragment : Fragment() {
         binding.searchView.setupWithSearchBar(binding.searchBar)
 
         binding.searchView.addTransitionListener { _, _, newState ->
-            if (newState == com.google.android.material.search.SearchView.TransitionState.HIDDEN) {
+            if (newState == SearchView.TransitionState.HIDDEN) {
                 binding.searchBar.visibility = View.GONE
                 binding.ivMenu.visibility = View.VISIBLE
                 binding.tvExplore.visibility = View.VISIBLE

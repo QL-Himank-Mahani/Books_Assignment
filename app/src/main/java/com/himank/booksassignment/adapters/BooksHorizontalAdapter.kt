@@ -1,7 +1,6 @@
-package com.himank.booksassignment
+package com.himank.booksassignment.adapters
 
 import android.content.res.ColorStateList
-import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
 import android.view.LayoutInflater
@@ -12,6 +11,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.target.CustomTarget
 import com.bumptech.glide.request.transition.Transition
+import com.himank.booksassignment.retrofit.Book
+import com.himank.booksassignment.R
 import com.himank.booksassignment.databinding.BookLayoutBinding
 
 class BooksHorizontalAdapter(

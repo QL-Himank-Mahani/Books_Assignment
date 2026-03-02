@@ -1,4 +1,4 @@
-package com.himank.booksassignment
+package com.himank.booksassignment.retrofit
 
 import retrofit2.http.GET
 import retrofit2.http.Query

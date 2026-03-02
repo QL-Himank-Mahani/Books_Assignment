@@ -1,4 +1,4 @@
-package com.himank.booksassignment
+package com.himank.booksassignment.retrofit
 
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize

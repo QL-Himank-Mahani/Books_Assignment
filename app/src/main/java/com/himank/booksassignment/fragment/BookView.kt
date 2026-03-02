@@ -1,4 +1,4 @@
-package com.himank.booksassignment
+package com.himank.booksassignment.fragment
 
 import android.content.res.ColorStateList
 import android.graphics.Bitmap
@@ -10,7 +10,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.compose.ui.graphics.Color
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.ColorUtils
 import androidx.fragment.app.Fragment
@@ -19,7 +18,11 @@ import androidx.palette.graphics.Palette
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.target.CustomTarget
 import com.bumptech.glide.request.transition.Transition
+import com.himank.booksassignment.R
+import com.himank.booksassignment.dataStore.BookMarkedRepository
+import com.himank.booksassignment.dataStore.BookQuantityRepository
 import com.himank.booksassignment.databinding.FragmentBookViewBinding
+import com.himank.booksassignment.retrofit.Book
 import kotlinx.coroutines.launch
 
 class BookView : Fragment() {
@@ -94,12 +97,10 @@ class BookView : Fragment() {
                             if (luminace < 0.5){
                                 binding.tvBookTitle.setTextColor(ContextCompat.getColor(view.context, R.color.white))
                                 binding.tvBookAuthor.setTextColor(ContextCompat.getColor(view.context, R.color.white))
-                                binding.tvBookDescription.setTextColor(ContextCompat.getColor(view.context, R.color.white))
                                 binding.tvBookPrice.setTextColor(ContextCompat.getColor(view.context, R.color.white))
                             } else {
                                 binding.tvBookTitle.setTextColor(ContextCompat.getColor(view.context, R.color.black))
                                 binding.tvBookAuthor.setTextColor(ContextCompat.getColor(view.context, R.color.black))
-                                binding.tvBookDescription.setTextColor(ContextCompat.getColor(view.context, R.color.black))
                                 binding.tvBookPrice.setTextColor(ContextCompat.getColor(view.context, R.color.black))
                             }
                         }
