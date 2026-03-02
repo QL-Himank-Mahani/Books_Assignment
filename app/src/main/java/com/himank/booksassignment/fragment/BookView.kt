@@ -5,7 +5,6 @@ import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,7 +12,7 @@ import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.ColorUtils
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.lifecycleScope
+import androidx.fragment.app.activityViewModels
 import androidx.palette.graphics.Palette
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.target.CustomTarget
@@ -23,19 +22,32 @@ import com.himank.booksassignment.dataStore.BookMarkedRepository
 import com.himank.booksassignment.dataStore.BookQuantityRepository
 import com.himank.booksassignment.databinding.FragmentBookViewBinding
 import com.himank.booksassignment.retrofit.Book
-import kotlinx.coroutines.launch
+import com.himank.booksassignment.retrofit.RetrofitInstance
+import com.himank.booksassignment.viewmodel.BooksViewModel
+import com.himank.booksassignment.viewmodel.BooksViewModelFactory
 
 class BookView : Fragment() {
-
     private var _binding: FragmentBookViewBinding? = null
     private val binding get() = _binding!!
-    private lateinit var quantityRepository: BookQuantityRepository
-    private lateinit var bookmarkRepository: BookMarkedRepository
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
+    private val bookArg: Book? by lazy {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            arguments?.getParcelable("book", Book::class.java)
+        } else {
+            @Suppress("DEPRECATION")
+            arguments?.getParcelable<Book>("book")
+        }
+    }
+
+    private val viewModel: BooksViewModel by activityViewModels {
+        BooksViewModelFactory(
+            RetrofitInstance.retrofit.create(com.himank.booksassignment.retrofit.ApiInterface::class.java),
+            BookMarkedRepository(requireContext()),
+            BookQuantityRepository(requireContext())
+        )
+    }
+
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         _binding = FragmentBookViewBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -43,126 +55,80 @@ class BookView : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        quantityRepository = BookQuantityRepository(requireContext())
-        bookmarkRepository = BookMarkedRepository(requireContext())
+        val book = bookArg ?: return
 
-        val book = if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            arguments?.getParcelable("book", Book::class.java)
-        } else {
-            @Suppress("DEPRECATION")
-            arguments?.getParcelable<Book>("book")
+        viewModel.loadBookDetail(book)
+
+        binding.tvBookTitle.text = book.title
+        binding.tvBookAuthor.text = "By ${book.author}"
+        binding.tvBookDescription.text = book.description
+        binding.tvBookPrice.text = if (book.price == "0.00") "Free" else "$${book.price}"
+
+        loadBookImage(view, book)
+
+        clicks(view, book)
+
+
+
+        // Observe LiveData
+        viewModel.quantity.observe(viewLifecycleOwner) { qty ->
+            binding.tvQuantity.text = qty.toString()
         }
 
-        binding.mainFrame.setOnClickListener {
-            Log.d("BookView", "Main frame clicked, popping back stack")
+        viewModel.isBookmarked.observe(viewLifecycleOwner) { bookmarked ->
+            binding.ivBookmarked.setImageResource(
+                if (bookmarked) R.drawable.bookmark_yes24px else R.drawable.bookmark_24px
+            )
         }
 
-        val title = book?.title ?: return
-
-        book.let { b ->
-            binding.tvBookTitle.text = b.title
-            binding.tvBookAuthor.text = "By " + b.author
-            binding.tvBookDescription.text = b.description
-
-            if(b.price == "0.00") {
-                binding.tvBookPrice.text = "Free"
-            } else {
-                binding.tvBookPrice.text = "$" + b.price
-            }
-
-            fun setRoundedBackground(color: Int) {
-                binding.constraintLayout.backgroundTintList = ColorStateList.valueOf(color)
-            }
-
-
-            Glide.with(view.context)
-                .asBitmap()
-                .load(book.book_image)
-                .into(object: CustomTarget<Bitmap>() {
-                    override fun onResourceReady(
-                        resource: Bitmap,
-                        transition: Transition<in Bitmap>?
-                    ) {
-                        binding.ivBookImage.setImageBitmap(resource)
-                        Palette.from(resource).generate(){ palette ->
-                            val defaultColor = ContextCompat.getColor(
-                                view.context,
-                                R.color.white
-                            )
-
-                            val color = palette?.getDominantColor(defaultColor) ?: defaultColor
-                            setRoundedBackground(color)
-
-                            val luminace = ColorUtils.calculateLuminance(color)
-                            if (luminace < 0.5){
-                                binding.tvBookTitle.setTextColor(ContextCompat.getColor(view.context, R.color.white))
-                                binding.tvBookAuthor.setTextColor(ContextCompat.getColor(view.context, R.color.white))
-                                binding.tvBookPrice.setTextColor(ContextCompat.getColor(view.context, R.color.white))
-                            } else {
-                                binding.tvBookTitle.setTextColor(ContextCompat.getColor(view.context, R.color.black))
-                                binding.tvBookAuthor.setTextColor(ContextCompat.getColor(view.context, R.color.black))
-                                binding.tvBookPrice.setTextColor(ContextCompat.getColor(view.context, R.color.black))
-                            }
-                        }
-                    }
-
-                    override fun onLoadCleared(placeholder: Drawable?) {}
-
-                })
-
-            viewLifecycleOwner.lifecycleScope.launch {
-                quantityRepository.getQuantity(b.title).collect { qty ->
-                    binding.tvQuantity.text = qty.toString()
-                }
-            }
-
-            binding.btnPlus.setOnClickListener {
-                viewLifecycleOwner.lifecycleScope.launch {
-                    quantityRepository.increment(b.title)
-                }
-            }
-
-            binding.btnMinus.setOnClickListener {
-                viewLifecycleOwner.lifecycleScope.launch {
-                    quantityRepository.decrement(b.title)
-                }
-            }
-
-            binding.imageView3.setOnClickListener {
-                parentFragmentManager.popBackStack()
-            }
-        }
-
-        viewLifecycleOwner.lifecycleScope.launch {
-            bookmarkRepository.isBookMarked(title).collect { isBookmarked ->
-                if (isBookmarked) {
-                    binding.ivBookmarked.setImageResource(R.drawable.bookmark_yes24px)
-                } else {
-                    binding.ivBookmarked.setImageResource(R.drawable.bookmark_24px)
-                }
-            }
-        }
-
-        binding.ivBookmarked.setOnClickListener {
-            lifecycleScope.launch {
-                val title = book.title ?: return@launch
-                bookmarkRepository.toggleBookmark(title)
-            }
-        }
-
-        binding.btnBuyNow.setOnClickListener {
-            val quantity = binding.tvQuantity.text.toString().toIntOrNull() ?: 0
-            if (quantity == 0) {
-                Toast.makeText(context, "Please select at least 1 book to buy", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            } else {
-                lifecycleScope.launch {
-                    quantityRepository.reset(book.title ?: "")
-                }
-                Toast.makeText(context, "Purchased $quantity copies of ${book.title}", Toast.LENGTH_SHORT).show()
+        viewModel.buySuccess.observe(viewLifecycleOwner) { success ->
+            if (success) {
+                Toast.makeText(context, "Purchase successful!", Toast.LENGTH_SHORT).show()
+                viewModel.onBuyHandled()
             }
         }
     }
+
+    private fun clicks(view: View, book: Book) {
+        binding.btnPlus.setOnClickListener { viewModel.onPlusClicked(book) }
+        binding.btnMinus.setOnClickListener { viewModel.onMinusClicked(book) }
+        binding.ivBookmarked.setOnClickListener { viewModel.toggleBookmark(book) }
+        binding.imageView3.setOnClickListener { parentFragmentManager.popBackStack() }
+        binding.btnBuyNow.setOnClickListener {
+            val qty = viewModel.quantity.value ?: 0
+            if (qty == 0) {
+                Toast.makeText(context, "Please select at least 1 book", Toast.LENGTH_SHORT).show()
+            } else {
+                viewModel.onBuyNowClicked(book)
+            }
+        }
+    }
+
+    private fun loadBookImage(view: View, book: Book) {
+        Glide.with(view.context)
+            .asBitmap()
+            .load(book.book_image)
+            .into(object : CustomTarget<Bitmap>() {
+                override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>?) {
+                    binding.ivBookImage.setImageBitmap(resource)
+                    Palette.from(resource).generate { palette ->
+                        val defaultColor = ContextCompat.getColor(view.context, R.color.white)
+                        val color = palette?.getDominantColor(defaultColor) ?: defaultColor
+                        binding.constraintLayout.backgroundTintList = ColorStateList.valueOf(color)
+
+                        val textColor = if (ColorUtils.calculateLuminance(color) < 0.5)
+                            ContextCompat.getColor(view.context, R.color.white)
+                        else
+                            ContextCompat.getColor(view.context, R.color.black)
+
+                        binding.tvBookTitle.setTextColor(textColor)
+                        binding.tvBookAuthor.setTextColor(textColor)
+                    }
+                }
+                override fun onLoadCleared(placeholder: Drawable?) {}
+            })
+    }
+
 
     override fun onDestroyView() {
         super.onDestroyView()

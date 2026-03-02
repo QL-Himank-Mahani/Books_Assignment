@@ -91,7 +91,16 @@ class BooksVerticalAdapter(
     }
 
     fun updateBookmarks(newBookmarkedTitles: Set<String>) {
-        this.bookmarkedTitles = newBookmarkedTitles
-        notifyDataSetChanged()
+        val oldBookmarkedTitles = bookmarkedTitles
+        bookmarkedTitles = newBookmarkedTitles
+
+        books.forEachIndexed { index, book ->
+            val wasBookmarked = oldBookmarkedTitles.contains(book.title)
+            val isNowBookmarked = newBookmarkedTitles.contains(book.title)
+
+            if (wasBookmarked != isNowBookmarked) {
+                notifyItemChanged(index)
+            }
+        }
     }
 }

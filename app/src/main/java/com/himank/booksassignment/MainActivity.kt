@@ -10,6 +10,7 @@ import androidx.fragment.app.FragmentManager
 import com.himank.booksassignment.fragment.HomeFragment
 
 class MainActivity : AppCompatActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
         super.onCreate(savedInstanceState)
@@ -22,12 +23,12 @@ class MainActivity : AppCompatActivity() {
             insets
         }
 
-        val homeFragment = HomeFragment()
-        val fragmentManager: FragmentManager = supportFragmentManager
-        val fragmentTransaction = fragmentManager.beginTransaction()
-        fragmentTransaction.replace(R.id.main, homeFragment)
-        fragmentTransaction.commit()
-
+        if (savedInstanceState == null) {
+            val homeFragment = HomeFragment()
+            val fragmentManager: FragmentManager = supportFragmentManager
+            val fragmentTransaction = fragmentManager.beginTransaction()
+            fragmentTransaction.replace(R.id.main, homeFragment)
+            fragmentTransaction.commit()
+        }
     }
-
 }
