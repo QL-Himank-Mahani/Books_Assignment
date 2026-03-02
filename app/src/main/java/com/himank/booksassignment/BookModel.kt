@@ -1,0 +1,22 @@
+package com.himank.booksassignment
+
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
+
+data class BooksResponse(
+    val status: String,
+    val results: Results
+)
+
+data class Results(
+    val books: List<Book>
+)
+
+@Parcelize
+data class Book(
+    val title: String,
+    val author: String,
+    val description: String,
+    val book_image: String,
+    val price: String
+) : Parcelable
