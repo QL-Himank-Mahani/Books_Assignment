@@ -1,22 +1,19 @@
 package com.himank.booksassignment.viewmodel
 
-import android.content.Context
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.himank.booksassignment.dataStore.BookMarkedRepository
-import com.himank.booksassignment.dataStore.BookQuantityRepository
-import com.himank.booksassignment.retrofit.ApiInterface
+import com.himank.booksassignment.dataStore.BookNetworkRepository
+import com.himank.booksassignment.dataStore.BookRepository
 import com.himank.booksassignment.retrofit.Book
 import kotlinx.coroutines.launch
 
 class BooksViewModel(
-    private val api: ApiInterface,
-    private val bookmarkRepository: BookMarkedRepository,
-    private val quantityRepository: BookQuantityRepository
+    private val networkRepository: BookNetworkRepository,
+    private val bookRepository: BookRepository
 ) : ViewModel() {
 
     // Home
@@ -47,7 +44,7 @@ class BooksViewModel(
             Log.d("API", "API hit")
             viewModelScope.launch {
                 try {
-                    val response = api.getBooks()
+                    val response = networkRepository.getBooks()
                     _books.value = response.results.books
                 } catch (e: Exception) {
                     Log.e("API", "Error fetching books", e)
@@ -62,7 +59,7 @@ class BooksViewModel(
     }
 
     fun toggleBookmark(book: Book) {
-        viewModelScope.launch { bookmarkRepository.toggleBookmark(book.title) }
+        viewModelScope.launch { bookRepository.toggleBookmark(book.title) }
     }
 
 
@@ -74,18 +71,18 @@ class BooksViewModel(
     }
 
     fun onPlusClicked(book: Book) {
-        viewModelScope.launch { quantityRepository.increment(book.title) }
+        viewModelScope.launch { bookRepository.increment(book.title) }
     }
 
     fun onMinusClicked(book: Book) {
-        viewModelScope.launch { quantityRepository.decrement(book.title) }
+        viewModelScope.launch { bookRepository.decrement(book.title) }
     }
 
     fun onBuyNowClicked(book: Book) {
         val qty = _quantity.value ?: 0
         if (qty > 0) {
             viewModelScope.launch {
-                quantityRepository.reset(book.title)
+                bookRepository.reset(book.title)
                 _buySuccess.postValue(true)
             }
         }
@@ -98,30 +95,29 @@ class BooksViewModel(
 
     private fun observeBookmarks() {
         viewModelScope.launch {
-            bookmarkRepository.getAllBookMarkedTitles().collect { _bookmarkedTitles.postValue(it) }
+            bookRepository.getAllBookMarkedTitles().collect { _bookmarkedTitles.postValue(it) }
         }
     }
 
     private fun observeQuantity(book: Book) {
         viewModelScope.launch {
-            quantityRepository.getQuantity(book.title).collect { _quantity.postValue(it) }
+            bookRepository.getQuantity(book.title).collect { _quantity.postValue(it) }
         }
     }
 
     private fun observeBookmarkStatus(book: Book) {
         viewModelScope.launch {
-            bookmarkRepository.isBookMarked(book.title).collect { _isBookmarked.postValue(it) }
+            bookRepository.isBookMarked(book.title).collect { _isBookmarked.postValue(it) }
         }
     }
 }
 
 class BooksViewModelFactory(
-    private val api: ApiInterface,
-    private val bookmarkRepository: BookMarkedRepository,
-    private val quantityRepository: BookQuantityRepository
+    private val networkRepository: BookNetworkRepository,
+    private val bookRepository: BookRepository
 ) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         @Suppress("UNCHECKED_CAST")
-        return BooksViewModel(api, bookmarkRepository, quantityRepository) as T
+        return BooksViewModel(networkRepository, bookRepository) as T
     }
 }

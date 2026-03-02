@@ -18,8 +18,8 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.request.target.CustomTarget
 import com.bumptech.glide.request.transition.Transition
 import com.himank.booksassignment.R
-import com.himank.booksassignment.dataStore.BookMarkedRepository
-import com.himank.booksassignment.dataStore.BookQuantityRepository
+import com.himank.booksassignment.dataStore.BookNetworkRepository
+import com.himank.booksassignment.dataStore.BookRepository
 import com.himank.booksassignment.databinding.FragmentBookViewBinding
 import com.himank.booksassignment.retrofit.Book
 import com.himank.booksassignment.retrofit.RetrofitInstance
@@ -41,9 +41,8 @@ class BookView : Fragment() {
 
     private val viewModel: BooksViewModel by activityViewModels {
         BooksViewModelFactory(
-            RetrofitInstance.retrofit.create(com.himank.booksassignment.retrofit.ApiInterface::class.java),
-            BookMarkedRepository(requireContext()),
-            BookQuantityRepository(requireContext())
+            BookNetworkRepository(RetrofitInstance.retrofit.create(com.himank.booksassignment.retrofit.ApiInterface::class.java)),
+            BookRepository(requireContext())
         )
     }
 
