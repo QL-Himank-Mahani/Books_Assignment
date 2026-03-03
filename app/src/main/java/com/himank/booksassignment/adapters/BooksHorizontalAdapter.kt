@@ -33,6 +33,16 @@ class BooksHorizontalAdapter(
             parent,
             false
         )
+
+        setItemWidth(binding, parent)
+
+        return BookViewHolder(binding)
+    }
+
+    private fun setItemWidth(
+        binding: BookLayoutBinding,
+        parent: android.view.ViewGroup
+    ) {
         val params = binding.root.layoutParams
 
         val displayMetrics = parent.context.resources.displayMetrics
@@ -48,8 +58,6 @@ class BooksHorizontalAdapter(
 
 //        params.width = (168 * parent.context.resources.displayMetrics.density).toInt()
 //        binding.root.layoutParams = params
-
-        return BookViewHolder(binding)
     }
 
     override fun onBindViewHolder(
@@ -107,7 +115,16 @@ class BooksHorizontalAdapter(
     }
 
     fun updateBookmarks(newBookmarkedTitles: Set<String>) {
+        val oldBookmarkedTitles = this.bookmarkedTitles
         this.bookmarkedTitles = newBookmarkedTitles
-        notifyDataSetChanged()
+
+        val changedTitles = (oldBookmarkedTitles - newBookmarkedTitles) + (newBookmarkedTitles - oldBookmarkedTitles)
+        if (changedTitles.isEmpty()) return
+
+        books.forEachIndexed { index, book ->
+            if (changedTitles.contains(book.title)) {
+                notifyItemChanged(index)
+            }
+        }
     }
 }
