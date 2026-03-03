@@ -9,7 +9,9 @@ import androidx.lifecycle.viewModelScope
 import com.himank.booksassignment.dataStore.BookNetworkRepository
 import com.himank.booksassignment.dataStore.BookRepository
 import com.himank.booksassignment.retrofit.Book
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class BooksViewModel(
     private val networkRepository: BookNetworkRepository,
@@ -41,11 +43,12 @@ class BooksViewModel(
 
     fun fetchBooks() {
         if (_books.value.isNullOrEmpty()) {
-            Log.d("API", "API hit")
-            viewModelScope.launch {
+            viewModelScope.launch(Dispatchers.IO) {
                 try {
                     val response = networkRepository.getBooks()
-                    _books.value = response.results.books
+                    withContext(Dispatchers.Main){
+                        _books.value = response.results.books
+                    }
                 } catch (e: Exception) {
                     Log.e("API", "Error fetching books", e)
                 }
@@ -63,7 +66,6 @@ class BooksViewModel(
     }
 
 
-    // BookView
 
     fun loadBookDetail(book: Book) {
         observeQuantity(book)

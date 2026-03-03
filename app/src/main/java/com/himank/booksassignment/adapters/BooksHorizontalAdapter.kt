@@ -56,8 +56,6 @@ class BooksHorizontalAdapter(
         params.width = itemWidth
         binding.root.layoutParams = params
 
-//        params.width = (168 * parent.context.resources.displayMetrics.density).toInt()
-//        binding.root.layoutParams = params
     }
 
     override fun onBindViewHolder(

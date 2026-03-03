@@ -21,6 +21,7 @@ import com.himank.booksassignment.R
 import com.himank.booksassignment.dataStore.BookNetworkRepository
 import com.himank.booksassignment.dataStore.BookRepository
 import com.himank.booksassignment.databinding.FragmentBookViewBinding
+import com.himank.booksassignment.retrofit.ApiInterface
 import com.himank.booksassignment.retrofit.Book
 import com.himank.booksassignment.retrofit.RetrofitInstance
 import com.himank.booksassignment.viewmodel.BooksViewModel
@@ -41,7 +42,7 @@ class BookView : Fragment() {
 
     private val viewModel: BooksViewModel by activityViewModels {
         BooksViewModelFactory(
-            BookNetworkRepository(RetrofitInstance.retrofit.create(com.himank.booksassignment.retrofit.ApiInterface::class.java)),
+            BookNetworkRepository(RetrofitInstance.retrofit.create(ApiInterface::class.java)),
             BookRepository(requireContext())
         )
     }
@@ -67,9 +68,11 @@ class BookView : Fragment() {
 
         clicks(view, book)
 
+        setUpObservers()
 
+    }
 
-        // Observe LiveData
+    private fun setUpObservers() {
         viewModel.quantity.observe(viewLifecycleOwner) { qty ->
             binding.tvQuantity.text = qty.toString()
         }
@@ -92,7 +95,7 @@ class BookView : Fragment() {
         binding.btnPlus.setOnClickListener { viewModel.onPlusClicked(book) }
         binding.btnMinus.setOnClickListener { viewModel.onMinusClicked(book) }
         binding.ivBookmarked.setOnClickListener { viewModel.toggleBookmark(book) }
-        binding.imageView3.setOnClickListener { parentFragmentManager.popBackStack() }
+        binding.btnBack.setOnClickListener { parentFragmentManager.popBackStack() }
         binding.btnBuyNow.setOnClickListener {
             val qty = viewModel.quantity.value ?: 0
             if (qty == 0) {

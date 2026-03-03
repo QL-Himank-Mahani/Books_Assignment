@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.widget.addTextChangedListener
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -18,6 +19,7 @@ import com.himank.booksassignment.adapters.BooksVerticalAdapter
 import com.himank.booksassignment.dataStore.BookNetworkRepository
 import com.himank.booksassignment.dataStore.BookRepository
 import com.himank.booksassignment.databinding.FragmentHomeBinding
+import com.himank.booksassignment.retrofit.ApiInterface
 import com.himank.booksassignment.retrofit.Book
 import com.himank.booksassignment.retrofit.RetrofitInstance
 import com.himank.booksassignment.viewmodel.BooksViewModel
@@ -29,9 +31,9 @@ class HomeFragment : Fragment() {
 
     private lateinit var horizontalLayoutManager: CustomLinearLayoutManager
 
-    private val viewModel: BooksViewModel by viewModels {
+    private val viewModel: BooksViewModel by activityViewModels {
         BooksViewModelFactory(
-            BookNetworkRepository(RetrofitInstance.retrofit.create(com.himank.booksassignment.retrofit.ApiInterface::class.java)),
+            BookNetworkRepository(RetrofitInstance.retrofit.create(ApiInterface::class.java)),
             BookRepository(requireContext())
         )
     }
@@ -84,7 +86,7 @@ class HomeFragment : Fragment() {
                 horizontalLayoutManager.setScrollEnabled(false)
                 binding.tvShowAll.text = "Show All"
             }
-            binding.rvYourInterest.smoothScrollToPosition(0)
+            binding.rvYourInterest.scrollToPosition(0)
         }
 
         binding.ivMenu.setOnClickListener {

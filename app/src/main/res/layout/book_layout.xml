@@ -6,16 +6,18 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
-    <FrameLayout
+    <com.google.android.material.card.MaterialCardView
         android:id="@+id/imageOuterBox"
         android:layout_width="match_parent"
         android:layout_height="180dp"
-        android:paddingHorizontal="30dp"
         android:background="@drawable/bg_book_container"
+        android:paddingHorizontal="30dp"
         android:paddingVertical="10dp"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        app:layout_constraintTop_toTopOf="parent">
+
         <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/bookImage"
             android:layout_width="100dp"
@@ -24,7 +26,7 @@
             android:scaleType="fitXY"
             app:shapeAppearanceOverlay="@style/RoundedImage"
             tools:srcCompat="@tools:sample/avatars" />
-    </FrameLayout>
+    </com.google.android.material.card.MaterialCardView>
 
     <TextView
         android:id="@+id/tvBookName"
