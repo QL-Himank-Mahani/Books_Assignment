@@ -9,13 +9,13 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.activityViewModels
-import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.search.SearchView
 import com.himank.booksassignment.R
 import com.himank.booksassignment.adapters.BooksHorizontalAdapter
 import com.himank.booksassignment.adapters.BooksVerticalAdapter
+import com.himank.booksassignment.constants.BOOK_ARG_KEY
 import com.himank.booksassignment.dataStore.BookNetworkRepository
 import com.himank.booksassignment.dataStore.BookRepository
 import com.himank.booksassignment.databinding.FragmentHomeBinding
@@ -30,6 +30,7 @@ class HomeFragment : Fragment() {
     private val binding get() = _binding!!
 
     private lateinit var horizontalLayoutManager: CustomLinearLayoutManager
+    private var isShowingAll = false
 
     private val viewModel: BooksViewModel by activityViewModels {
         BooksViewModelFactory(
@@ -79,18 +80,14 @@ class HomeFragment : Fragment() {
         }
 
         binding.tvShowAll.setOnClickListener {
-            if (binding.tvShowAll.text == "Show All") {
-                horizontalLayoutManager.setScrollEnabled(true)
-                binding.tvShowAll.text = "Show Less"
-            } else {
-                horizontalLayoutManager.setScrollEnabled(false)
-                binding.tvShowAll.text = "Show All"
-            }
+            isShowingAll = !isShowingAll
+            horizontalLayoutManager.setScrollEnabled(isShowingAll)
+            binding.tvShowAll.text = getString(if (isShowingAll) R.string.show_less else R.string.show_all)
             binding.rvYourInterest.scrollToPosition(0)
         }
 
         binding.ivMenu.setOnClickListener {
-            Toast.makeText(requireContext(), "Menu Bar Clicked", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), getString(R.string.menu_bar_clicked), Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -140,7 +137,7 @@ class HomeFragment : Fragment() {
     }
 
     private fun navigateToBookView(book: Book) {
-        val bundle = Bundle().apply { putParcelable("book", book) }
+        val bundle = Bundle().apply { putParcelable(BOOK_ARG_KEY, book) }
         val bookViewFragment = BookView()
         bookViewFragment.arguments = bundle
 

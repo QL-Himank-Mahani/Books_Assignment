@@ -42,7 +42,7 @@ class BooksVerticalAdapter(
     ) {
         val book = books[position]
         holder.binding.tvBookName.text = book.title
-        holder.binding.tvAuthorName.text = "By " + book.author
+        holder.binding.tvAuthorName.text = holder.itemView.context.getString(R.string.author_prefix, book.author)
 
         val isBookmarked = bookmarkedTitles.contains(book.title)
         if (isBookmarked) {

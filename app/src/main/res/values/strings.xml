@@ -2,4 +2,26 @@
     <string name="app_name">Books Assignment</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <string name="explore">Explore</string>
+    <string name="search_books">Search books</string>
+    <string name="your_interest">Your Interest</string>
+    <string name="bestseller">Bestseller</string>
+    <string name="show_all">Show All</string>
+    <string name="show_less">Show Less</string>
+
+    <string name="description">Description</string>
+    <string name="price">Price</string>
+    <string name="qty">QTY</string>
+    <string name="quantity_default">0</string>
+    <string name="buy_now">Buy Now</string>
+
+    <string name="author_prefix">By </string>
+    <string name="author_preview">By Author</string>
+    <string name="price_value">$%1$s</string>
+    <string name="free">Free</string>
+
+    <string name="menu_bar_clicked">Menu Bar Clicked</string>
+    <string name="purchase_successful">Purchase successful!</string>
+    <string name="select_at_least_one_book">Please select at least 1 book</string>
 </resources>

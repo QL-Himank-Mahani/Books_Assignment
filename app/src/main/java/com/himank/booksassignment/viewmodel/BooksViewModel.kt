@@ -119,7 +119,6 @@ class BooksViewModelFactory(
     private val bookRepository: BookRepository
 ) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        @Suppress("UNCHECKED_CAST")
         return BooksViewModel(networkRepository, bookRepository) as T
     }
 }

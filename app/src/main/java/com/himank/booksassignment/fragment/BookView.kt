@@ -18,6 +18,7 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.request.target.CustomTarget
 import com.bumptech.glide.request.transition.Transition
 import com.himank.booksassignment.R
+import com.himank.booksassignment.constants.BOOK_ARG_KEY
 import com.himank.booksassignment.dataStore.BookNetworkRepository
 import com.himank.booksassignment.dataStore.BookRepository
 import com.himank.booksassignment.databinding.FragmentBookViewBinding
@@ -33,10 +34,10 @@ class BookView : Fragment() {
 
     private val bookArg: Book? by lazy {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            arguments?.getParcelable("book", Book::class.java)
+            arguments?.getParcelable(BOOK_ARG_KEY, Book::class.java)
         } else {
             @Suppress("DEPRECATION")
-            arguments?.getParcelable<Book>("book")
+            arguments?.getParcelable<Book>(BOOK_ARG_KEY)
         }
     }
 
@@ -60,13 +61,13 @@ class BookView : Fragment() {
         viewModel.loadBookDetail(book)
 
         binding.tvBookTitle.text = book.title
-        binding.tvBookAuthor.text = "By ${book.author}"
+        binding.tvBookAuthor.text = getString(R.string.author_prefix, book.author)
         binding.tvBookDescription.text = book.description
-        binding.tvBookPrice.text = if (book.price == "0.00") "Free" else "$${book.price}"
+        binding.tvBookPrice.text = if (book.price == "0.00") getString(R.string.free) else getString(R.string.price_value, book.price)
 
         loadBookImage(view, book)
 
-        clicks(view, book)
+        clicks(book)
 
         setUpObservers()
 
@@ -85,13 +86,13 @@ class BookView : Fragment() {
 
         viewModel.buySuccess.observe(viewLifecycleOwner) { success ->
             if (success) {
-                Toast.makeText(context, "Purchase successful!", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, getString(R.string.purchase_successful), Toast.LENGTH_SHORT).show()
                 viewModel.onBuyHandled()
             }
         }
     }
 
-    private fun clicks(view: View, book: Book) {
+    private fun clicks(book: Book) {
         binding.btnPlus.setOnClickListener { viewModel.onPlusClicked(book) }
         binding.btnMinus.setOnClickListener { viewModel.onMinusClicked(book) }
         binding.ivBookmarked.setOnClickListener { viewModel.toggleBookmark(book) }
@@ -99,7 +100,7 @@ class BookView : Fragment() {
         binding.btnBuyNow.setOnClickListener {
             val qty = viewModel.quantity.value ?: 0
             if (qty == 0) {
-                Toast.makeText(context, "Please select at least 1 book", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, getString(R.string.select_at_least_one_book), Toast.LENGTH_SHORT).show()
             } else {
                 viewModel.onBuyNowClicked(book)
             }
