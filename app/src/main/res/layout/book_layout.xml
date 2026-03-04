@@ -12,7 +12,7 @@
         android:layout_height="180dp"
         android:paddingHorizontal="30dp"
         android:paddingVertical="10dp"
-        app:cardBackgroundColor="@android:color/white"
+        app:cardBackgroundColor="@color/white"
         app:cardCornerRadius="24dp"
         app:cardUseCompatPadding="false"
         app:cardPreventCornerOverlap="true"
