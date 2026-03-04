@@ -28,7 +28,7 @@ import com.himank.booksassignment.retrofit.RetrofitInstance
 import com.himank.booksassignment.viewmodel.BooksViewModel
 import com.himank.booksassignment.viewmodel.BooksViewModelFactory
 
-class BookView : Fragment() {
+class BookViewFragment : Fragment() {
     private var _binding: FragmentBookViewBinding? = null
     private val binding get() = _binding!!
 
@@ -110,7 +110,7 @@ class BookView : Fragment() {
     private fun loadBookImage(view: View, book: Book) {
         Glide.with(view.context)
             .asBitmap()
-            .load(book.book_image)
+            .load(book.bookImage)
             .into(object : CustomTarget<Bitmap>() {
                 override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>?) {
                     binding.ivBookImage.setImageBitmap(resource)

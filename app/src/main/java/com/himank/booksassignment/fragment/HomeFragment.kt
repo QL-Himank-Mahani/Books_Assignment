@@ -138,7 +138,7 @@ class HomeFragment : Fragment() {
 
     private fun navigateToBookView(book: Book) {
         val bundle = Bundle().apply { putParcelable(BOOK_ARG_KEY, book) }
-        val bookViewFragment = BookView()
+        val bookViewFragment = BookViewFragment()
         bookViewFragment.arguments = bundle
 
         parentFragmentManager.beginTransaction()

@@ -61,7 +61,7 @@ class BooksVerticalAdapter(
 
         Glide.with(holder.binding.root)
             .asBitmap()
-            .load(book.book_image)
+            .load(book.bookImage)
             .into(object : CustomTarget<Bitmap>() {
                 override fun onResourceReady(
                     resource: Bitmap,

@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     android:background="@color/white"
     android:padding="25dp"
-    tools:context=".fragment.BookView">
+    tools:context=".fragment.BookViewFragment">
 
         <androidx.core.widget.NestedScrollView
             android:id="@+id/nestedScrollView"
@@ -39,6 +39,7 @@
                         android:layout_marginTop="30dp"
                         android:layout_gravity="center"
                         android:adjustViewBounds="true"
+                        android:contentDescription="@string/book_cover_desc"
                         android:scaleType="fitCenter"
                         app:shapeAppearanceOverlay="@style/RoundedImage"
                         app:layout_constraintBottom_toTopOf="@+id/tvBookTitle"
@@ -52,7 +53,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="68dp"
-                        tools:text="@string/author_prefix"
+                        tools:text="@string/author_preview"
                         android:textSize="18sp"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
@@ -98,6 +99,7 @@
                         android:layout_marginTop="16dp"
                         android:padding="10dp"
                         android:background="@drawable/white_round_bg"
+                        android:contentDescription="@string/back_icon_desc"
                         android:src="@drawable/arrow_back_ios_24px"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent" />
@@ -109,6 +111,7 @@
                         android:layout_marginTop="16dp"
                         android:layout_marginEnd="16dp"
                         android:padding="10dp"
+                        android:contentDescription="@string/bookmark_icon_desc"
                         android:src="@drawable/bookmark_24px"
                         android:background="@drawable/white_round_bg"
                         app:layout_constraintEnd_toEndOf="parent"
@@ -177,6 +180,7 @@
                 android:id="@+id/btnMinus"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
+                android:contentDescription="@string/decrease_quantity_desc"
                 android:src="@drawable/remove_24px"
                 app:tint="#888888" />
 
@@ -193,6 +197,7 @@
                 android:id="@+id/btnPlus"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
+                android:contentDescription="@string/increase_quantity_desc"
                 android:src="@drawable/add_24px" />
 
         </LinearLayout>

@@ -83,7 +83,7 @@ class BooksHorizontalAdapter(
 
         Glide.with(holder.itemView.context)
             .asBitmap()
-            .load(book.book_image)
+            .load(book.bookImage)
             .into(object : CustomTarget<Bitmap>() {
                 override fun onResourceReady(
                     resource: Bitmap,
