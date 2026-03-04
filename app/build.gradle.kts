@@ -1,7 +1,18 @@
+import java.io.FileInputStream
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.parcelize)
 }
+
+val localProperties = Properties()
+val localPropertiesFile = rootProject.file("local.properties")
+localProperties.load(FileInputStream(localPropertiesFile))
+localPropertiesFile.inputStream().use {
+    localProperties.load(it)
+}
+val nytApiKey = localProperties.getProperty("NYT_API_KEY") ?: ""
 
 android {
     namespace = "com.himank.booksassignment"
@@ -15,6 +26,7 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        buildConfigField("String", "NYT_API_KEY", "\"$nytApiKey\"")
     }
 
     buildTypes {
@@ -32,6 +44,7 @@ android {
     }
     buildFeatures{
         viewBinding = true
+        buildConfig = true
     }
 }
 
@@ -73,11 +86,12 @@ dependencies {
 
     implementation("androidx.palette:palette-ktx:1.0.0")
 
-//    implementation("com.google.android.material:material:1.11.0")
+    // implementation("com.google.android.material:material:1.11.0")
 
     implementation("androidx.compose.material3:material3:1.4.0")
     implementation("androidx.compose.material3:material3-window-size-class:1.4.0")
     implementation("androidx.compose.material3:material3-adaptive-navigation-suite:1.5.0-alpha14")
 
+    // splash screen
     implementation("androidx.core:core-splashscreen:1.0.1")
 }

@@ -6,13 +6,16 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
-    <com.google.android.material.card.MaterialCardView
+    <androidx.cardview.widget.CardView
         android:id="@+id/imageOuterBox"
         android:layout_width="match_parent"
         android:layout_height="180dp"
-        android:background="@drawable/bg_book_container"
         android:paddingHorizontal="30dp"
         android:paddingVertical="10dp"
+        app:cardBackgroundColor="@android:color/white"
+        app:cardCornerRadius="24dp"
+        app:cardUseCompatPadding="false"
+        app:cardPreventCornerOverlap="true"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
@@ -27,7 +30,7 @@
             android:scaleType="fitXY"
             app:shapeAppearanceOverlay="@style/RoundedImage"
             tools:srcCompat="@tools:sample/avatars" />
-    </com.google.android.material.card.MaterialCardView>
+    </androidx.cardview.widget.CardView>
 
     <TextView
         android:id="@+id/tvBookName"

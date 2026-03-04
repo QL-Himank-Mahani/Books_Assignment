@@ -1,6 +1,5 @@
 package com.himank.booksassignment.adapters
 
-import android.content.res.ColorStateList
 import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
 import android.view.LayoutInflater
@@ -78,7 +77,7 @@ class BooksHorizontalAdapter(
         }
 
         fun setRoundedBackground(color: Int) {
-            holder.binding.imageOuterBox.backgroundTintList = ColorStateList.valueOf(color)
+            holder.binding.imageOuterBox.setCardBackgroundColor(color)
         }
 
         Glide.with(holder.itemView.context)
