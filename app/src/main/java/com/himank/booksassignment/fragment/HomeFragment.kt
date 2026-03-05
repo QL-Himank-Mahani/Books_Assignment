@@ -32,6 +32,10 @@ class HomeFragment : Fragment() {
     private lateinit var horizontalLayoutManager: CustomLinearLayoutManager
     private var isShowingAll = false
 
+    private lateinit var horizontalAdapter: BooksHorizontalAdapter
+    private lateinit var verticalAdapter: BooksVerticalAdapter
+    private lateinit var searchAdapter: BooksVerticalAdapter
+
     private val viewModel: BooksViewModel by activityViewModels {
         BooksViewModelFactory(
             BookNetworkRepository(RetrofitInstance.retrofit.create(ApiInterface::class.java)),
@@ -48,8 +52,43 @@ class HomeFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         setupSearch()
+        setupRecyclerViews()
         setupClickListeners()
         observeViewModel()
+    }
+
+    private fun setupRecyclerViews() {
+        verticalAdapter = BooksVerticalAdapter(
+            viewModel.bookmarkedTitles.value ?: emptySet(),
+            onBookClick = { navigateToBookView(it) },
+            onBookmarkClick = { viewModel.toggleBookmark(it) }
+        )
+
+        horizontalAdapter = BooksHorizontalAdapter(
+            viewModel.bookmarkedTitles.value ?: emptySet(),
+            onBookClick = { navigateToBookView(it) },
+            onBookmarkClick = { viewModel.toggleBookmark(it) }
+        )
+
+        searchAdapter = BooksVerticalAdapter(
+            viewModel.bookmarkedTitles.value ?: emptySet(),
+            onBookClick = { navigateToBookView(it) },
+            onBookmarkClick = { viewModel.toggleBookmark(it) }
+        )
+
+        binding.rvBestSellers.layoutManager = GridLayoutManager(requireContext(), 2)
+        binding.rvBestSellers.adapter = verticalAdapter
+
+        horizontalLayoutManager =
+            CustomLinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
+
+        horizontalLayoutManager.setScrollEnabled(false)
+
+        binding.rvYourInterest.layoutManager = horizontalLayoutManager
+        binding.rvYourInterest.adapter = horizontalAdapter
+
+        binding.rvSearchResults.layoutManager = GridLayoutManager(requireContext(), 2)
+        binding.rvSearchResults.adapter = searchAdapter
     }
 
     private fun setupSearch() {
@@ -93,47 +132,21 @@ class HomeFragment : Fragment() {
 
     private fun observeViewModel() {
         viewModel.books.observe(viewLifecycleOwner) { books ->
-            setupVerticalRecyclerView(books)
-            setupHorizontalRecyclerView(books)
+            verticalAdapter.submitList(books)
+            horizontalAdapter.submitList(books)
+            searchAdapter.submitList(books)
         }
 
         viewModel.bookmarkedTitles.observe(viewLifecycleOwner) { titles ->
-            (binding.rvBestSellers.adapter as? BooksVerticalAdapter)?.updateBookmarks(titles)
-            (binding.rvYourInterest.adapter as? BooksHorizontalAdapter)?.updateBookmarks(titles)
-            (binding.rvSearchResults.adapter as? BooksVerticalAdapter)?.updateBookmarks(titles)
+            verticalAdapter.updateBookmarks(titles)
+            horizontalAdapter.updateBookmarks(titles)
+            searchAdapter.updateBookmarks(titles)
         }
     }
 
-    private fun setupVerticalRecyclerView(books: List<Book>) {
-        binding.rvBestSellers.layoutManager = GridLayoutManager(requireContext(), 2)
-        binding.rvBestSellers.adapter = BooksVerticalAdapter(
-            books,
-            viewModel.bookmarkedTitles.value ?: emptySet(),
-            onBookClick = { book -> navigateToBookView(book) },
-            onBookmarkClick = { book -> viewModel.toggleBookmark(book) }
-        )
-    }
-
-    private fun setupHorizontalRecyclerView(books: List<Book>) {
-        horizontalLayoutManager = CustomLinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
-        horizontalLayoutManager.setScrollEnabled(false)
-        binding.rvYourInterest.layoutManager = horizontalLayoutManager
-        binding.rvYourInterest.adapter = BooksHorizontalAdapter(
-            books,
-            viewModel.bookmarkedTitles.value ?: emptySet(),
-            onBookClick = { book -> navigateToBookView(book) },
-            onBookmarkClick = { book -> viewModel.toggleBookmark(book) }
-        )
-    }
 
     private fun updateSearchRecyclerView(books: List<Book>) {
-        binding.rvSearchResults.layoutManager = GridLayoutManager(requireContext(), 2)
-        binding.rvSearchResults.adapter = BooksVerticalAdapter(
-            books,
-            viewModel.bookmarkedTitles.value ?: emptySet(),
-            onBookClick = { book -> navigateToBookView(book) },
-            onBookmarkClick = { book -> viewModel.toggleBookmark(book) }
-        )
+       searchAdapter.submitList(books)
     }
 
     private fun navigateToBookView(book: Book) {

@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.palette.graphics.Palette
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.target.CustomTarget
@@ -15,11 +16,10 @@ import com.himank.booksassignment.R
 import com.himank.booksassignment.databinding.BookLayoutBinding
 
 class BooksVerticalAdapter(
-    private val books: List<Book>,
     private var bookmarkedTitles: Set<String>,
     private val onBookClick: (Book) -> Unit,
     private val onBookmarkClick: (Book) -> Unit
-) : RecyclerView.Adapter<BooksVerticalAdapter.BookViewHolder>() {
+) : ListAdapter<Book, BooksVerticalAdapter.BookViewHolder>(BookDiffCallback()) {
 
     class BookViewHolder(val binding: BookLayoutBinding) : RecyclerView.ViewHolder(binding.root)
 
@@ -39,7 +39,7 @@ class BooksVerticalAdapter(
         holder: BookViewHolder,
         position: Int
     ) {
-        val book = books[position]
+        val book = getItem(position)
         holder.binding.tvBookName.text = book.title
         holder.binding.tvAuthorName.text = holder.itemView.context.getString(R.string.author_prefix, book.author)
 
@@ -85,10 +85,6 @@ class BooksVerticalAdapter(
         }
     }
 
-    override fun getItemCount(): Int {
-        return books.size
-    }
-
     fun updateBookmarks(newBookmarkedTitles: Set<String>) {
         val oldBookmarkedTitles = this.bookmarkedTitles
         this.bookmarkedTitles = newBookmarkedTitles
@@ -96,7 +92,7 @@ class BooksVerticalAdapter(
         val changedTitles = (oldBookmarkedTitles - newBookmarkedTitles) + (newBookmarkedTitles - oldBookmarkedTitles)
         if (changedTitles.isEmpty()) return
 
-        books.forEachIndexed { index, book ->
+        currentList.forEachIndexed { index, book ->
             if (changedTitles.contains(book.title)) {
                 notifyItemChanged(index)
             }
