@@ -15,13 +15,13 @@ import com.google.android.material.search.SearchView
 import com.himank.booksassignment.R
 import com.himank.booksassignment.adapters.BooksHorizontalAdapter
 import com.himank.booksassignment.adapters.BooksVerticalAdapter
-import com.himank.booksassignment.constants.BOOK_ARG_KEY
 import com.himank.booksassignment.dataStore.BookNetworkRepository
 import com.himank.booksassignment.dataStore.BookRepository
 import com.himank.booksassignment.databinding.FragmentHomeBinding
 import com.himank.booksassignment.retrofit.ApiInterface
 import com.himank.booksassignment.retrofit.Book
 import com.himank.booksassignment.retrofit.RetrofitInstance
+import com.himank.booksassignment.utils.constants.BundleKeys
 import com.himank.booksassignment.viewmodel.BooksViewModel
 import com.himank.booksassignment.viewmodel.BooksViewModelFactory
 
@@ -137,7 +137,7 @@ class HomeFragment : Fragment() {
     }
 
     private fun navigateToBookView(book: Book) {
-        val bundle = Bundle().apply { putParcelable(BOOK_ARG_KEY, book) }
+        val bundle = Bundle().apply { putParcelable(BundleKeys.BOOK_ARG_KEY, book) }
         val bookViewFragment = BookViewFragment()
         bookViewFragment.arguments = bundle
 

@@ -18,13 +18,13 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.request.target.CustomTarget
 import com.bumptech.glide.request.transition.Transition
 import com.himank.booksassignment.R
-import com.himank.booksassignment.constants.BOOK_ARG_KEY
 import com.himank.booksassignment.dataStore.BookNetworkRepository
 import com.himank.booksassignment.dataStore.BookRepository
 import com.himank.booksassignment.databinding.FragmentBookViewBinding
 import com.himank.booksassignment.retrofit.ApiInterface
 import com.himank.booksassignment.retrofit.Book
 import com.himank.booksassignment.retrofit.RetrofitInstance
+import com.himank.booksassignment.utils.constants.BundleKeys.BOOK_ARG_KEY
 import com.himank.booksassignment.viewmodel.BooksViewModel
 import com.himank.booksassignment.viewmodel.BooksViewModelFactory
 
@@ -37,7 +37,7 @@ class BookViewFragment : Fragment() {
             arguments?.getParcelable(BOOK_ARG_KEY, Book::class.java)
         } else {
             @Suppress("DEPRECATION")
-            arguments?.getParcelable<Book>(BOOK_ARG_KEY)
+            arguments?.getParcelable(BOOK_ARG_KEY)
         }
     }
 
