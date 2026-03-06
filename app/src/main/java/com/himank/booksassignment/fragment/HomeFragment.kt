@@ -1,6 +1,5 @@
 package com.himank.booksassignment.fragment
 
-import android.content.Context
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -22,6 +21,7 @@ import com.himank.booksassignment.retrofit.ApiInterface
 import com.himank.booksassignment.retrofit.Book
 import com.himank.booksassignment.retrofit.RetrofitInstance
 import com.himank.booksassignment.utils.constants.BundleKeys
+import com.himank.booksassignment.utils.constants.UiConstants
 import com.himank.booksassignment.viewmodel.BooksViewModel
 import com.himank.booksassignment.viewmodel.BooksViewModelFactory
 
@@ -29,7 +29,6 @@ class HomeFragment : Fragment() {
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
 
-    private lateinit var horizontalLayoutManager: CustomLinearLayoutManager
     private var isShowingAll = false
 
     private lateinit var horizontalAdapter: BooksHorizontalAdapter
@@ -79,12 +78,7 @@ class HomeFragment : Fragment() {
         binding.rvBestSellers.layoutManager = GridLayoutManager(requireContext(), 2)
         binding.rvBestSellers.adapter = verticalAdapter
 
-        horizontalLayoutManager =
-            CustomLinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
-
-        horizontalLayoutManager.setScrollEnabled(false)
-
-        binding.rvYourInterest.layoutManager = horizontalLayoutManager
+        binding.rvYourInterest.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
         binding.rvYourInterest.adapter = horizontalAdapter
 
         binding.rvSearchResults.layoutManager = GridLayoutManager(requireContext(), 2)
@@ -105,7 +99,7 @@ class HomeFragment : Fragment() {
 
         binding.searchView.editText.addTextChangedListener { editable ->
             val results = viewModel.searchBooks(editable.toString())
-            updateSearchRecyclerView(results)
+            searchAdapter.submitList(results)
         }
     }
 
@@ -120,9 +114,9 @@ class HomeFragment : Fragment() {
 
         binding.tvShowAll.setOnClickListener {
             isShowingAll = !isShowingAll
-            horizontalLayoutManager.setScrollEnabled(isShowingAll)
             binding.tvShowAll.text = getString(if (isShowingAll) R.string.show_less else R.string.show_all)
-            binding.rvYourInterest.scrollToPosition(0)
+            val books = viewModel.books.value ?: emptyList()
+            updateHorizontalList(books)
         }
 
         binding.ivMenu.setOnClickListener {
@@ -130,11 +124,17 @@ class HomeFragment : Fragment() {
         }
     }
 
+    private fun updateHorizontalList(books: List<Book>) {
+        horizontalAdapter.submitList(
+            if (isShowingAll) books else books.take(UiConstants.INITIAL_HORIZONTAL_COUNT)
+        )
+    }
+
     private fun observeViewModel() {
         viewModel.books.observe(viewLifecycleOwner) { books ->
             verticalAdapter.submitList(books)
-            horizontalAdapter.submitList(books)
             searchAdapter.submitList(books)
+            updateHorizontalList(books)
         }
 
         viewModel.bookmarkedTitles.observe(viewLifecycleOwner) { titles ->
@@ -142,11 +142,6 @@ class HomeFragment : Fragment() {
             horizontalAdapter.updateBookmarks(titles)
             searchAdapter.updateBookmarks(titles)
         }
-    }
-
-
-    private fun updateSearchRecyclerView(books: List<Book>) {
-       searchAdapter.submitList(books)
     }
 
     private fun navigateToBookView(book: Book) {
@@ -163,18 +158,5 @@ class HomeFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
-    }
-}
-
-class CustomLinearLayoutManager(context: Context, orientation: Int, reverseLayout: Boolean) :
-    LinearLayoutManager(context, orientation, reverseLayout) {
-    private var isScrollEnabled = false
-
-    fun setScrollEnabled(enabled: Boolean) {
-        isScrollEnabled = enabled
-    }
-
-    override fun canScrollHorizontally(): Boolean {
-        return isScrollEnabled && super.canScrollHorizontally()
     }
 }
