@@ -3,19 +3,16 @@ package com.himank.booksassignment.dataStore
 import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
-import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
-import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
+import com.himank.booksassignment.utils.constants.PreferenceKeys.bookmarkKey
+import com.himank.booksassignment.utils.constants.PreferenceKeys.quantityKey
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
 private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "book_preferences")
 
 class BookRepository(private val context: Context) {
-
-    private fun quantityKey(title: String) = intPreferencesKey("qty_$title")
-    private fun bookmarkKey(title: String) = booleanPreferencesKey("bookmark_$title")
 
     fun getQuantity(bookTitle: String): Flow<Int> {
         return context.dataStore.data.map { prefs ->

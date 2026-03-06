@@ -1,6 +1,5 @@
 package com.himank.booksassignment.fragment
 
-import android.content.Context
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -9,7 +8,6 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.activityViewModels
-import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.search.SearchView
@@ -22,6 +20,8 @@ import com.himank.booksassignment.databinding.FragmentHomeBinding
 import com.himank.booksassignment.retrofit.ApiInterface
 import com.himank.booksassignment.retrofit.Book
 import com.himank.booksassignment.retrofit.RetrofitInstance
+import com.himank.booksassignment.utils.constants.BundleKeys
+import com.himank.booksassignment.utils.constants.UiConstants
 import com.himank.booksassignment.viewmodel.BooksViewModel
 import com.himank.booksassignment.viewmodel.BooksViewModelFactory
 
@@ -29,7 +29,11 @@ class HomeFragment : Fragment() {
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
 
-    private lateinit var horizontalLayoutManager: CustomLinearLayoutManager
+    private var isShowingAll = false
+
+    private lateinit var horizontalAdapter: BooksHorizontalAdapter
+    private lateinit var verticalAdapter: BooksVerticalAdapter
+    private lateinit var searchAdapter: BooksVerticalAdapter
 
     private val viewModel: BooksViewModel by activityViewModels {
         BooksViewModelFactory(
@@ -47,8 +51,38 @@ class HomeFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         setupSearch()
+        setupRecyclerViews()
         setupClickListeners()
         observeViewModel()
+    }
+
+    private fun setupRecyclerViews() {
+        verticalAdapter = BooksVerticalAdapter(
+            viewModel.bookmarkedTitles.value ?: emptySet(),
+            onBookClick = { navigateToBookView(it) },
+            onBookmarkClick = { viewModel.toggleBookmark(it) }
+        )
+
+        horizontalAdapter = BooksHorizontalAdapter(
+            viewModel.bookmarkedTitles.value ?: emptySet(),
+            onBookClick = { navigateToBookView(it) },
+            onBookmarkClick = { viewModel.toggleBookmark(it) }
+        )
+
+        searchAdapter = BooksVerticalAdapter(
+            viewModel.bookmarkedTitles.value ?: emptySet(),
+            onBookClick = { navigateToBookView(it) },
+            onBookmarkClick = { viewModel.toggleBookmark(it) }
+        )
+
+        binding.rvBestSellers.layoutManager = GridLayoutManager(requireContext(), 2)
+        binding.rvBestSellers.adapter = verticalAdapter
+
+        binding.rvYourInterest.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
+        binding.rvYourInterest.adapter = horizontalAdapter
+
+        binding.rvSearchResults.layoutManager = GridLayoutManager(requireContext(), 2)
+        binding.rvSearchResults.adapter = searchAdapter
     }
 
     private fun setupSearch() {
@@ -65,7 +99,7 @@ class HomeFragment : Fragment() {
 
         binding.searchView.editText.addTextChangedListener { editable ->
             val results = viewModel.searchBooks(editable.toString())
-            updateSearchRecyclerView(results)
+            searchAdapter.submitList(results)
         }
     }
 
@@ -79,69 +113,40 @@ class HomeFragment : Fragment() {
         }
 
         binding.tvShowAll.setOnClickListener {
-            if (binding.tvShowAll.text == "Show All") {
-                horizontalLayoutManager.setScrollEnabled(true)
-                binding.tvShowAll.text = "Show Less"
-            } else {
-                horizontalLayoutManager.setScrollEnabled(false)
-                binding.tvShowAll.text = "Show All"
-            }
-            binding.rvYourInterest.scrollToPosition(0)
+            isShowingAll = !isShowingAll
+            binding.tvShowAll.text = getString(if (isShowingAll) R.string.show_less else R.string.show_all)
+            val books = viewModel.books.value ?: emptyList()
+            updateHorizontalList(books)
         }
 
         binding.ivMenu.setOnClickListener {
-            Toast.makeText(requireContext(), "Menu Bar Clicked", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), getString(R.string.menu_bar_clicked), Toast.LENGTH_SHORT).show()
         }
+    }
+
+    private fun updateHorizontalList(books: List<Book>) {
+        horizontalAdapter.submitList(
+            if (isShowingAll) books else books.take(UiConstants.INITIAL_HORIZONTAL_COUNT)
+        )
     }
 
     private fun observeViewModel() {
         viewModel.books.observe(viewLifecycleOwner) { books ->
-            setupVerticalRecyclerView(books)
-            setupHorizontalRecyclerView(books)
+            verticalAdapter.submitList(books)
+            searchAdapter.submitList(books)
+            updateHorizontalList(books)
         }
 
         viewModel.bookmarkedTitles.observe(viewLifecycleOwner) { titles ->
-            (binding.rvBestSellers.adapter as? BooksVerticalAdapter)?.updateBookmarks(titles)
-            (binding.rvYourInterest.adapter as? BooksHorizontalAdapter)?.updateBookmarks(titles)
-            (binding.rvSearchResults.adapter as? BooksVerticalAdapter)?.updateBookmarks(titles)
+            verticalAdapter.updateBookmarks(titles)
+            horizontalAdapter.updateBookmarks(titles)
+            searchAdapter.updateBookmarks(titles)
         }
     }
 
-    private fun setupVerticalRecyclerView(books: List<Book>) {
-        binding.rvBestSellers.layoutManager = GridLayoutManager(requireContext(), 2)
-        binding.rvBestSellers.adapter = BooksVerticalAdapter(
-            books,
-            viewModel.bookmarkedTitles.value ?: emptySet(),
-            onBookClick = { book -> navigateToBookView(book) },
-            onBookmarkClick = { book -> viewModel.toggleBookmark(book) }
-        )
-    }
-
-    private fun setupHorizontalRecyclerView(books: List<Book>) {
-        horizontalLayoutManager = CustomLinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
-        horizontalLayoutManager.setScrollEnabled(false)
-        binding.rvYourInterest.layoutManager = horizontalLayoutManager
-        binding.rvYourInterest.adapter = BooksHorizontalAdapter(
-            books,
-            viewModel.bookmarkedTitles.value ?: emptySet(),
-            onBookClick = { book -> navigateToBookView(book) },
-            onBookmarkClick = { book -> viewModel.toggleBookmark(book) }
-        )
-    }
-
-    private fun updateSearchRecyclerView(books: List<Book>) {
-        binding.rvSearchResults.layoutManager = GridLayoutManager(requireContext(), 2)
-        binding.rvSearchResults.adapter = BooksVerticalAdapter(
-            books,
-            viewModel.bookmarkedTitles.value ?: emptySet(),
-            onBookClick = { book -> navigateToBookView(book) },
-            onBookmarkClick = { book -> viewModel.toggleBookmark(book) }
-        )
-    }
-
     private fun navigateToBookView(book: Book) {
-        val bundle = Bundle().apply { putParcelable("book", book) }
-        val bookViewFragment = BookView()
+        val bundle = Bundle().apply { putParcelable(BundleKeys.BOOK_ARG_KEY, book) }
+        val bookViewFragment = BookViewFragment()
         bookViewFragment.arguments = bundle
 
         parentFragmentManager.beginTransaction()
@@ -153,18 +158,5 @@ class HomeFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
-    }
-}
-
-class CustomLinearLayoutManager(context: Context, orientation: Int, reverseLayout: Boolean) :
-    LinearLayoutManager(context, orientation, reverseLayout) {
-    private var isScrollEnabled = false
-
-    fun setScrollEnabled(enabled: Boolean) {
-        isScrollEnabled = enabled
-    }
-
-    override fun canScrollHorizontally(): Boolean {
-        return isScrollEnabled && super.canScrollHorizontally()
     }
 }

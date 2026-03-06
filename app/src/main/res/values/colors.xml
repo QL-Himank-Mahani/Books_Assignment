@@ -3,4 +3,16 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="green">#006400</color>
+
+    <color name="rating_star">#EFBF1C</color>
+    <color name="price_text">#2C6054</color>
+    <color name="text_primary_dark">#333333</color>
+    <color name="icon_muted">#888888</color>
+    <color name="quantity_text">#4CAF50</color>
+    <color name="buy_button">#0F6556</color>
+
+    <color name="surface_tint_light">#F8F8F8</color>
+    <color name="surface_tint_neutral">#E9EDEC</color>
+
+    <color name="transparent">#00000000</color>
 </resources>

@@ -1,12 +1,12 @@
 package com.himank.booksassignment.adapters
 
-import android.content.res.ColorStateList
 import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.palette.graphics.Palette
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.target.CustomTarget
@@ -16,11 +16,10 @@ import com.himank.booksassignment.R
 import com.himank.booksassignment.databinding.BookLayoutBinding
 
 class BooksHorizontalAdapter(
-    private val books: List<Book>,
     private var bookmarkedTitles: Set<String>,
     private val onBookClick: (Book) -> Unit,
     private val onBookmarkClick: (Book) -> Unit
-) : RecyclerView.Adapter<BooksHorizontalAdapter.BookViewHolder>() {
+) : ListAdapter<Book, BooksHorizontalAdapter.BookViewHolder>(BookDiffCallback()) {
 
     class BookViewHolder(val binding: BookLayoutBinding) : RecyclerView.ViewHolder(binding.root)
 
@@ -41,7 +40,7 @@ class BooksHorizontalAdapter(
 
     private fun setItemWidth(
         binding: BookLayoutBinding,
-        parent: android.view.ViewGroup
+        parent: ViewGroup
     ) {
         val params = binding.root.layoutParams
 
@@ -62,9 +61,9 @@ class BooksHorizontalAdapter(
         holder: BookViewHolder,
         position: Int
     ) {
-        val book = books[position]
+        val book = getItem(position)
         holder.binding.tvBookName.text = book.title
-        holder.binding.tvAuthorName.text = "By " + book.author
+        holder.binding.tvAuthorName.text = holder.itemView.context.getString(R.string.author_prefix, book.author)
 
         val isBookmarked = bookmarkedTitles.contains(book.title)
         if (isBookmarked) {
@@ -78,12 +77,12 @@ class BooksHorizontalAdapter(
         }
 
         fun setRoundedBackground(color: Int) {
-            holder.binding.imageOuterBox.backgroundTintList = ColorStateList.valueOf(color)
+            holder.binding.imageOuterBox.setCardBackgroundColor(color)
         }
 
-        Glide.with(holder.itemView.context)
+        Glide.with(holder.binding.root)
             .asBitmap()
-            .load(book.book_image)
+            .load(book.bookImage)
             .into(object : CustomTarget<Bitmap>() {
                 override fun onResourceReady(
                     resource: Bitmap,
@@ -108,9 +107,6 @@ class BooksHorizontalAdapter(
         }
     }
 
-    override fun getItemCount(): Int {
-        return books.size
-    }
 
     fun updateBookmarks(newBookmarkedTitles: Set<String>) {
         val oldBookmarkedTitles = this.bookmarkedTitles
@@ -119,7 +115,7 @@ class BooksHorizontalAdapter(
         val changedTitles = (oldBookmarkedTitles - newBookmarkedTitles) + (newBookmarkedTitles - oldBookmarkedTitles)
         if (changedTitles.isEmpty()) return
 
-        books.forEachIndexed { index, book ->
+        currentList.forEachIndexed { index, book ->
             if (changedTitles.contains(book.title)) {
                 notifyItemChanged(index)
             }
